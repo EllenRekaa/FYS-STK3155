@@ -19,13 +19,12 @@ fontsize = 18
 FILEPATH = "Project1/Data/"
 FILEPATH_FIG = "Project1/Figures/"
 
+# READ IN LISTS FOR PLOTTING
 RidgeParams = mlb.Read(FILEPATH+"RidgeDat.csv")
 LASSOParams = mlb.Read(FILEPATH+"LASSOdat.csv")
 OLSParams = mlb.Read(FILEPATH+"OLSDat.csv")
 BVDAT = mlb.Read(FILEPATH+"biasvar.csv")
 
-RealRidgeParams = mlb.Read(FILEPATH+"RidgeDat_real.csv")
-RealOLSParams = mlb.Read(FILEPATH+"OLSDAT_real.csv")
 
 # HANDLES
 RHLH = ["Degrees", "MSE", "R2", "Lambdas", "Opts"]
@@ -33,13 +32,9 @@ OLSH = ["Degrees", "MSE (TRAIN)", "MSE (TEST)", "R2", "Opts"]
 BVH = ["Error", "Bias", "Variance"]
 # PARAMETER DICTIONARIES
 RP = {RHLH[j]:RidgeParams[j] for j in range(len(RidgeParams))}
-RP_real = {RHLH[j]:RealRidgeParams[j] for j in range(len(RealRidgeParams))}
 LP = {RHLH[j]:LASSOParams[j] for j in range(len(LASSOParams))}
-OLSP_real = {OLSH[j]:RealOLSParams[j] for j in range(len(RealOLSParams))}
 OLSP = {OLSH[j]:OLSParams[j] for j in range(len(OLSParams))}
 BVP = {BVH[j]:BVDAT[j] for j in range(len(BVDAT))}
-
-
 
 """
 PLOT MSE AND R2 FOR OLS FOR FRANKE FITTING
@@ -129,6 +124,7 @@ RIDGEX = mlb.create_X(x,y,int(RP["Opts"][0]))
 IDMAT = np.identity(np.size(RIDGEX[0,:]))
 RIDGEb = np.linalg.inv(RIDGEX.T @ RIDGEX + RP["Opts"][1] * IDMAT) @ RIDGEX.T @ z
 
+# OPTIONAL COLORMAP FOR COMPARISON
 fig = plt.figure(figsize=(13,5))
 ax1 = fig.add_subplot(121)
 ax1.set_title("Original Franke Surface", fontproperties = font)
