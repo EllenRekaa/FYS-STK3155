@@ -223,9 +223,7 @@ def Write(filename, data):
             writer.writerows(data)
     return
 
-"""
-FIX READ FUNCTION --- NOT --- DONE
-"""
+# READ SPECIFIED FILE ACCORDING TO HEADER LENGTHS
 def Read(filename):
 
     myfile = open(filename, 'r')
@@ -277,57 +275,3 @@ def Read(filename):
             MSE2.append(float(row[2]))
             R2.append(float(row[3]))
         return polydegree, MSE, MSE2, R2, fixed_values
-
-
-
-
-
-
-
-
-""""
-    dataRidge = zip(
-    list(MSE_RIDGE_DEGREE.keys()),
-    list(LAMBDA_RIDGE_DEGREE.values()),
-    list(LAMBDA_LASSO_DEGREE.values()),
-    list(MSE_RIDGE_DEGREE.values()),
-    list(MSE_LASSO_DEGREE.values())
-    )
-    #print(tabulate(dataRidge, ["Degree", "Opt Lmd Ridge", "Opt Lmd LASSO",  "MSE Ridge", "MSE LASSO"]))
-    #print("Optimal Fitting Degree and Hyperparameter Under Ridge Regression:",
-    #optdegreeRidge, optlambdaRidge)
-    #print("Optimal Fitting Degree and Hyperparameter Under LASSO Regression:",
-    #optdegreeLASSO, optlambdaLASSO)
-
-    fig, (ax1, ax2) = plt.subplots(1,2, figsize = (10,4), tight_layout = True)
-    ax1.set_title("MSE as a Function of Fitting Degree", fontproperties = font)
-    ax1.plot(
-    list(MSE_RIDGE_DEGREE.keys()), list(MSE_RIDGE_DEGREE.values()),
-    label = "Ridge MSE", color = 'black', ls = '-')
-    ax1.plot(
-    list(MSE_LASSO_DEGREE.keys()), list(MSE_LASSO_DEGREE.values()),
-    label = "LASSO MSE", color = "r", ls = '--'
-    )
-    ax1.plot(optdegreeRidge, min(MSE_RIDGE_DEGREE.values()), 'ro',
-    label = "Opt Degree Ridge")
-    ax1.plot(optdegreeLASSO, min(MSE_LASSO_DEGREE.values()), 'bo',
-    label = "Opt Degree LASSO")
-    ax1.set_ylabel("MSE", fontproperties = font)
-    ax1.set_xlabel("Polynomial Degree", fontproperties = font)
-    ax1.legend(loc = 'upper right'); ax1.grid()
-
-    ax2.set_title(r"MSE as a Function of $\lambda$ for Optimal Fitting Degree",
-    fontproperties = font)
-    ax2.plot(np.log10(lambdas), RIDGEPredict[optdegreeRidge],
-    label = "MSE Ridge", color = 'black', ls = '-')
-    ax2.plot(np.log10(lambdas), LASSOPredict[optdegreeLASSO],
-    label = "MSE LASSO", color = 'r', ls = "--")
-    ax2.plot(np.log10(optlambdaRidge), min(MSE_RIDGE_DEGREE.values()), 'ro',
-    label = "Opt Lambda Ridge")
-    ax2.plot(np.log10(optlambdaLASSO), min(MSE_LASSO_DEGREE.values()), 'bo',
-    label = "Opt Lambda LASSO")
-    ax2.set_xlabel(r"$\log_{10}\lambda$", fontproperties = font)
-    ax2.legend(loc = 'upper left'); ax2.grid()
-    fig.savefig("RIDGELASSO_MSE.png")
-    plt.show()
-"""
