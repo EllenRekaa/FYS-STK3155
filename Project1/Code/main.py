@@ -1,10 +1,5 @@
 import mylibrary as mlb # AUTHORS LIBRARY OF FUNCTION CALLS
 import numpy as np
-import pandas as pd
-from tabulate import tabulate
-import os
-from imageio import imread
-import matplotlib.pyplot as plt
 
 ### MAIN ###
 
@@ -127,4 +122,3 @@ paramsLASSO = mlb.FIND_BEST_PARAMS("LASSO", MSELASSOPredict, R2LASSO, lambdasLAS
 # WRITE LASSO DATA TO FILE FOR PLOTTING/TABULATING
 mlb.Write("LASSOdat_real", paramsLASSO)
 #"""
-#os.system('say "Done-diddely-doo"')
