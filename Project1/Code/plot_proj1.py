@@ -113,7 +113,7 @@ plt.savefig(FILEPATH_FIG+"RIDGEANDLASSO_MSE_AND_R2.png")
 """
 PLOT ORIGINAL DATA SURFACE AND APPROXIMATED SURFACE
 """
-"""
+
 n = 100 # number of sample points (virtual data)
 
 np.random.seed(2023)
@@ -129,6 +129,29 @@ RIDGEX = mlb.create_X(x,y,int(RP["Opts"][0]))
 IDMAT = np.identity(np.size(RIDGEX[0,:]))
 RIDGEb = np.linalg.inv(RIDGEX.T @ RIDGEX + RP["Opts"][1] * IDMAT) @ RIDGEX.T @ z
 
+fig = plt.figure(figsize=(13,5))
+ax1 = fig.add_subplot(121)
+ax1.set_title("Original Franke Surface", fontproperties = font)
+ax1.set_ylabel("Y (arcsec)"); ax1.set_xlabel("X (arcsec)")
+im1 = ax1.imshow(z, interpolation='None')
+
+divider = make_axes_locatable(ax1)
+cax = divider.append_axes('right', size='5%', pad=0.05)
+fig.colorbar(im1, cax=cax, orientation='vertical')
+
+ax2 = fig.add_subplot(122)
+ax2.set_title("Estimated Franke Surface Under Ridge Regression",
+fontproperties=font)
+ax2.set_xlabel("X (arcsec)", fontproperties=font)
+im2 = ax2.imshow(RIDGEX @ RIDGEb, interpolation = 'lanczos')
+
+divider = make_axes_locatable(ax2)
+cax = divider.append_axes('right', size='5%', pad=0.05)
+fig.colorbar(im2, cax=cax, orientation='vertical');
+plt.savefig(FILEPATH_FIG+"imshowFranke_Ridge.png")
+plt.show()
+
+"""
 fig1 = plt.figure()
 ax = fig1.gca(projection='3d')
 
@@ -140,70 +163,3 @@ ax.set_ylabel("Y"); ax.set_xlabel("X"); ax.set_zlabel("Z")
 plt.savefig("OLSFrankeSurface.png")
 plt.show()
 """
-
-terrain = imread(FILEPATH+'SRTM_data_Norway_1.tif') # read terrain file
-z = terrain
-
-if z.shape[0] > z.shape[1]:
-    N = z.shape[1]
-else: N = z.shape[0]
-
-N = 150
-
-x = np.linspace(0,N,N)
-
-y = np.linspace(1.5*N,2.5*N,N)
-xx,yy = np.meshgrid(x,y)
-
-z = z[:len(x),:len(y)]
-
-norm = np.linalg.norm(z)
-
-z = z/norm
-
-print(OLSP_real["Opts"][0])
-print(RP_real["Opts"][0])
-print(OLSP_real["MSE (TEST)"][int(OLSP_real["Opts"][0])])
-print(RP_real["MSE"][int(RP_real["Opts"][0])])
-
-
-X_ols = mlb.create_X(x,y,int(OLSP_real["Opts"][0]))
-X_ridge = mlb.create_X(x,y,int(RP_real["Opts"][0]))
-XT_X = X_ridge.T @ X_ridge
-I_mat = np.identity(np.size(X_ridge[0,:]))
-b_ridge = np.linalg.inv(XT_X + RP_real["Opts"][1] * I_mat) @ X_ridge.T @ z
-
-z_pred = X_ridge @ b_ridge
-zols_pred = X_ols @ np.linalg.inv(X_ols.T @ X_ols) @ X_ols.T @ z
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-ax.set_title("Original Terrain and OLS Estimated Surface")
-ax.set_xlabel("x (arcsec)"); ax.set_ylabel("y (arcsec)")
-ax.set_zlabel("Elevation")
-ax.plot_surface(xx,yy,z_pred, cmap = 'summer')
-ax.scatter(xx,yy,z, alpha = 0.01, color = 'turquoise')
-#ax.plot_surface(xx,yy,zols_pred)
-plt.savefig(FILEPATH_FIG+"RIDGETERRAIN.png")
-plt.show()
-
-fig = plt.figure(figsize=(13,5))
-ax1 = fig.add_subplot(121)
-ax1.set_title("Original Terrain Data", fontproperties = font)
-ax1.set_ylabel("Y (arcsec)"); ax1.set_xlabel("X (arcsec)")
-im1 = ax1.imshow(z, interpolation='None')
-
-divider = make_axes_locatable(ax1)
-cax = divider.append_axes('right', size='5%', pad=0.05)
-fig.colorbar(im1, cax=cax, orientation='vertical')
-
-ax2 = fig.add_subplot(122)
-ax2.set_title("Estimated Terrain Data Under OLS Regression",
-fontproperties=font)
-ax2.set_xlabel("X (arcsec)", fontproperties=font)
-im2 = ax2.imshow(zols_pred, interpolation='None')
-
-divider = make_axes_locatable(ax2)
-cax = divider.append_axes('right', size='5%', pad=0.05)
-fig.colorbar(im2, cax=cax, orientation='vertical');
-plt.savefig(FILEPATH_FIG+"imshowterrain_ols.png")
-plt.show()

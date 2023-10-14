@@ -1,4 +1,4 @@
-import mylibrary as mlb
+import mylibrary as mlb # AUTHORS LIBRARY OF FUNCTION CALLS
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
@@ -6,6 +6,7 @@ import os
 from imageio import imread
 import matplotlib.pyplot as plt
 
+### MAIN ###
 
 n = 100 # number of sample points (virtual data)
 d = 10 # number of fitting degree trials (OLS)
@@ -42,9 +43,9 @@ xx,yy = np.meshgrid(x,y)
 
 z = z[:len(x),:len(y)]
 
-norm = np.linalg.norm(z)
+std = np.std(z)
 
-z = z/norm
+z = (z - np.mean(z))/std
 #"""
 
 # DICTIONARIES FOR STORING VARIABLES (OLS)
@@ -88,7 +89,7 @@ bestR2
 # WRITE OLS DATA TO FILE FOR PLOTTING/TABULATING
 mlb.Write('OLSDat_real', dataOLS)
 
-"""
+#"""
 # DICTIONARIES FOR STORING VECTORS OF VARIABLES (RIDGE)
 MSERIDGE = {j:[] for j in range(1,maxd+1)}
 MSERIDGEPredict = {j:[] for j in range(1,maxd+1)}
@@ -104,11 +105,9 @@ for i in range(1,maxd+1):
 
 paramsRidge = mlb.FIND_BEST_PARAMS("RIDGE", MSERIDGEPredict, R2RIDGE, lambdas)
 
-print("Opt Degree, Lowest MSE and Opt Hyperparameter Under Ridge Regression:")
-print(paramsRidge[-2], paramsRidge[1][paramsRidge[-2]], paramsRidge[-1])
 # WRITE RIDGE DATA TO FILE FOR PLOTTING/TABULATING
 mlb.Write("RidgeDat_real", paramsRidge)
-"""
+#"""
 #"""
 # DICTIONARIES FOR STORING VECTORS OF VARIABLES (LASSO)
 MSELASSO = {j:[] for j in range(1,maxd+1)}
