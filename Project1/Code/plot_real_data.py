@@ -33,11 +33,13 @@ LP = {RHLH[j]:RealLASSOParams[j] for j in range(len(RealLASSOParams))}
 
 OLSP = {OLSH[j]:RealOLSParams[j] for j in range(len(RealOLSParams))}
 
+# PLOT LOG10 VALUES FOR EASIER VISUALIZATION
 MSEOLSTRAIN = [np.log10(x) for x in OLSP["MSE (TRAIN)"]]
 MSEOLSTTEST = [np.log10(x) for x in OLSP["MSE (TEST)"]]
 
 MSERIDGE = [np.log10(x) for x in RP["MSE"]]
 MSELASSO = [np.log10(x) for x in LP["MSE"]]
+
 """
 PLOT MSE AND R2 FOR OLS FOR TERRAIN MODEL
 """
