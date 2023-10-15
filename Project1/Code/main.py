@@ -31,16 +31,18 @@ else: N = z.shape[0]
 
 N = 150
 
+# DETERMINE XY SEGMENT TO STUDY BY NO. OF POINTS N
 x = np.linspace(0,N,N)
-
 y = np.linspace(1.5*N,2.5*N,N)
+
 xx,yy = np.meshgrid(x,y)
 
 z = z[:len(x),:len(y)]
 
+# NORMALIZE DATA
 std = np.std(z)
-
 z = (z - np.mean(z))/std
+
 #"""
 
 # DICTIONARIES FOR STORING VARIABLES (OLS)
@@ -50,6 +52,8 @@ R2OLS = {j:0 for j in range(1,d+1)}
 error = {}
 bias = {}
 var = {}
+
+# COMMENT IN BOOTSTRAP FUNCTION AND ERROR,BIAS,VAR FOR BIAS - VAR STUDIES
 
 for i in range(1,d+1):
     X_train, X_test, z_train, z_test, zfit, zpredict = mlb.PERFORM_OLS(i,x,y,z)
