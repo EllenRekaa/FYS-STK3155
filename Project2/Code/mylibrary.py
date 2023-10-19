@@ -275,3 +275,63 @@ def Read(filename):
             MSE2.append(float(row[2]))
             R2.append(float(row[3]))
         return polydegree, MSE, MSE2, R2, fixed_values
+
+
+def GDM_OLS(n, theta, X, XT_X, z, dm, lim):
+    z = np.reshape(np.ravel(z), (len(X), 1))
+    # Hessian matrix
+    H = (2.0 / n) * XT_X
+    EigValues, EigVectors = np.linalg.eig(H)
+    eta = 1.0 / np.max(EigValues)
+    i = 0
+    if dm == 0:  # no momentum
+        gradient = (2.0 / n) * X.T @ (X @ theta - z)
+        theta -= eta * gradient
+    elif dm > 0:  # with momentum
+        gradients = [1, 1]  # initialize gradient for the lim-test
+        change = 0.0
+        while np.linalg.norm(gradients) > lim:
+            i += 1
+            # calculate gradient
+            gradients = (2.0 / n) * X.T @ (X @ theta - z)
+            # calculate update
+            new_change = eta * gradients + dm * change
+            # take a step
+            theta -= new_change
+            # save the change
+            change = new_change
+            if i > 10000:
+                break
+    return theta, i
+
+
+def GDM_Ridge(n, theta, lmb, X, XT_X, z, dm, lim):
+    z = np.reshape(np.ravel(z), (len(X), 1))
+    # Hessian matrix
+    H = (2.0 / n) * XT_X + 2 * lmb * np.eye(XT_X.shape[0])
+    # Get the eigenvalues
+    EigValues, EigVectors = np.linalg.eig(H)
+    # fixed learning rate
+    eta = 1.0 / np.max(EigValues)
+    i = 0
+    if dm == 0:  # no momentum
+        gradients = 2.0 / n * X.T @ (X @ theta - z) + 2 * lmb * theta
+        theta -= eta * gradients
+    elif dm > 0:  # With momentum
+        # initializing parameters
+        gradients = [1, 1]
+        change = 0.0
+        while np.linalg.norm(gradients) > lim:
+            i += 1
+            # calculate gradient
+            gradients = 2.0 / n * X.T @ (X @ theta - z) + 2 * lmb * theta
+            # calculate update
+            new_change = eta * gradients + dm * change
+            # take a step
+            theta -= new_change
+            # save the change
+            change = new_change
+            if i > 10000:
+                break
+
+    return theta, i
