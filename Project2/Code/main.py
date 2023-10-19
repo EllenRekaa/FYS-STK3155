@@ -1,5 +1,6 @@
 import mylibrary as mlb # AUTHORS LIBRARY OF FUNCTION CALLS
 import numpy as np
+from imageio.v2 import imread
 
 ### MAIN ###
 
@@ -7,7 +8,7 @@ n = 100 # number of sample points (virtual data)
 d = 10 # number of fitting degree trials (OLS)
 maxd = 20 # number of fitting degree trials (RIDGE/LASSO)
 nlam = 50 # NO. hyperparameter trials
-nlamLASSO = 10
+nlamLASSO = 1
 minlam = -8
 maxlam = -1
 lambdas = np.logspace(minlam,maxlam,nlam) # logspace mesh of hyperparameters
@@ -17,11 +18,11 @@ nbootstraps = n # NO. of bootstrapping cycles
 
 np.random.seed(2023)
 
-#x,y = mlb.xy_data(n) # virtual x and y values
-#xs,ys = np.meshgrid(x,y) # meshed net of x and y values
-#z = mlb.FrankeFunction(xs,ys,n) # virtual data for benchmarking the code
+x,y = mlb.xy_data(n) # virtual x and y values
+xs,ys = np.meshgrid(x,y) # meshed net of x and y values
+z = mlb.FrankeFunction(xs,ys,n) # virtual data for benchmarking the code
 
-#"""
+"""
 terrain = imread('Project1/Data/SRTM_data_Norway_1.tif') # read terrain file
 z = terrain
 
@@ -43,7 +44,7 @@ z = z[:len(x),:len(y)]
 std = np.std(z)
 z = (z - np.mean(z))/std
 
-#"""
+"""
 
 # DICTIONARIES FOR STORING VARIABLES (OLS)
 MSEOLS = {j:0 for j in range(1,d+1)}
