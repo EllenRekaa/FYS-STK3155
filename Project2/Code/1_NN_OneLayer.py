@@ -21,18 +21,16 @@ def feed_forward(X):
     # axis 0 holds each input and axis 1 the probabilities of each category
 
     exp_term = np.exp(z_o)
-    #print(np.shape(exp_term))
     probabilities = exp_term / np.sum(exp_term, axis=1, keepdims=True)
-    print(np.shape(probabilities))    
     # for backpropagation need activations in hidden and output layers
     return a_h, probabilities
 
 def backpropagation(X, Y):
     a_h, probabilities = feed_forward(X)  
-    p = np.argmax(probabilities, axis=1)
+    #p = np.argmax(probabilities, axis=1)
     # error in the output layer
-    #error_output = p - np.reshape(Y,(len(Y),1))
-    error_output = pred - Y
+    error_output = probabilities - np.reshape(Y,(len(Y),1))
+    #error_output = pred - Y
     
     # error in the hidden layer
     error_hidden = np.matmul(error_output, output_weights.T) * a_h * (1 - a_h)
