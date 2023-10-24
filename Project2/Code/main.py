@@ -1,7 +1,7 @@
 import mylibrary as mlb # AUTHORS LIBRARY OF FUNCTION CALLS
 import numpy as np
 from imageio.v2 import imread
-
+print("Ellen")
 ### MAIN ###
 
 n = 100 # number of sample points (virtual data)
