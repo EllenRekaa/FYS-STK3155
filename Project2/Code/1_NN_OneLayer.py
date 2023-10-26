@@ -2,7 +2,8 @@
 from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.model_selection import train_test_split
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def sigmoid(x):
     return 1/(1 + np.exp(-x))
@@ -22,6 +23,8 @@ def feed_forward(X):
 
     exp_term = np.exp(z_o)
     probabilities = exp_term / np.sum(exp_term, axis=1, keepdims=True)
+
+    
     # for backpropagation need activations in hidden and output layers
     return a_h, probabilities
 
@@ -29,7 +32,7 @@ def backpropagation(X, Y):
     a_h, probabilities = feed_forward(X)  
     #p = np.argmax(probabilities, axis=1)
     # error in the output layer
-    error_output = probabilities - np.reshape(Y,(len(Y),1))
+    error_output = probabilities - Y
     #error_output = pred - Y
     
     # error in the hidden layer
@@ -43,11 +46,11 @@ def backpropagation(X, Y):
     hidden_weights_gradient = np.matmul(X.T, error_hidden)
     hidden_bias_gradient = np.sum(error_hidden, axis=0)
 
-    return output_weights_gradient, output_bias_gradient, hidden_weights_gradient, hidden_bias_gradient
+    return a_h, probabilities, output_weights_gradient, output_bias_gradient, hidden_weights_gradient, hidden_bias_gradient
 
 # we obtain a prediction by taking the class with the highest likelihood
 def predict(X):
-    probabilities = feed_forward(X)
+    a, probabilities = feed_forward(X)
     return np.argmax(probabilities, axis=1)
 
 
@@ -67,9 +70,10 @@ yAND = np.array( [ 0, 0 ,0, 1])
     
   
 # Split data
-#X_train, X_test, Y_train, Y_test = train_test_split(X,yOR, train_size=0.8)
-X_train = X
-Y_train = yOR
+X_train, X_test, Y_train, Y_test = train_test_split(X,yOR, train_size=0.8)
+Y_train = np.reshape(Y_train,(len(Y_train),1))
+#X_train = X
+#Y_train = np.reshape(yOR,(len(yOR),1))
 
 # Defining the neural network
 n_inputs, n_features = X_train.shape # (4,2) 4 sett med (x1,x2)
@@ -87,29 +91,50 @@ hidden_bias = np.zeros(n_hidden_neurons) + 0.01
 output_weights = np.random.randn(n_hidden_neurons, n_categories)
 output_bias = np.zeros(n_categories) + 0.01
 
-#print("New accuracy on training data: " + str(accuracy_score(predict(X_train), Y_train)))
+print("New accuracy on training data: " + str(accuracy_score(predict(X_train), Y_train)))
 
 eta = 0.01
 lmbd = 0.01
+eta_vals = np.logspace(-5, 1, 7)
+lmbd_vals = np.logspace(-5, 1, 7)
+end= 100
+lim = 0.01
+Loss = np.zeros(end)
+test_accuracy = np.zeros((len(eta_vals), len(lmbd_vals)))
+
 #loop over etas and lambdas
+for i, eta in enumerate(eta_vals):
+   for j, lmbd in enumerate(lmbd_vals):
+        # loop over epochs
+        for k in range(end):
+            # calculate gradients
+            a_h,P, dWo, dBo, dWh, dBh = backpropagation(X_train, Y_train)
+            
+            # regularization term gradients
+            dWo += lmbd * output_weights
+            dWh += lmbd * hidden_weights
+            
+            # update weights and biases
+            output_weights -= eta * dWo
+            output_bias -= eta * dBo
+            hidden_weights -= eta * dWh
+            hidden_bias -= eta * dBh
 
-# loop over epochs
-for i in range(1000):
-    # calculate gradients
-    dWo, dBo, dWh, dBh = backpropagation(X_train, Y_train)
-    
-    # regularization term gradients
-    dWo += lmbd * output_weights
-    dWh += lmbd * hidden_weights
-    
-    # update weights and biases
-    output_weights -= eta * dWo
-    output_bias -= eta * dBo
-    hidden_weights -= eta * dWh
-    hidden_bias -= eta * dBh
+            #Loss[i] = -1 *np.sum( t *np.log(t +(1-Y_test)) * np.log(1-t))
+        #"""
+        test_accuracy[i][j] = accuracy_score(Y_train, predict(X_train))    
+        if ((eta == 0.01) and (lmbd == 1)):
+            print(predict(X_train))
+        """
+        test_accuracy[i][j] = accuracy_score(Y_test, predict(X_test))    
+        if ((eta == 0.01) and (lmbd == 1)):
+            print(predict(X_test))
+        """
 
-"""    
-    loss = -1 *np.sum( y_pred *log(propability +(1-y)) * log(1-a))
-
-print("New accuracy on training data: " + str(accuracy_score(predict(X_train), Y_train)))
-"""
+sns.set()
+fig, ax = plt.subplots(figsize = (10, 10))
+sns.heatmap(test_accuracy, annot=True, ax=ax, cmap="viridis")
+ax.set_title("Test Accuracy")
+ax.set_ylabel("$\eta$")
+ax.set_xlabel("$\lambda$")
+plt.show()
