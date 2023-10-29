@@ -30,7 +30,7 @@ def backpropagation(X, Y):
     eo = ao - Y
 
     # error in the hidden layer
-    eh = eo.dot(Wo.T) * ah * (1 - ah)
+    eh = eo.dot(Wo.T) * ah #* (1 - ah)
 
     
     # gradients for the output layer
@@ -55,9 +55,9 @@ def predict(X):
 np.random.seed(0)
 e = 0.00001
 l = 0.00001
-eta_vals = np.logspace(-5, -2, 4)
+eta_vals = np.logspace(-5, 1, 7)
 lmbd_vals = np.logspace(-5, 1, 7)
-epochs= 100
+epochs= 1000
 lim = 0.01
 
 # data:
