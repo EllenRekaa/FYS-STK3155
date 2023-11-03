@@ -5,15 +5,89 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def loss(Y,ao):
-    return (1.0/n)*np.sum((Y - ao)**2)
+#Loss fuction
+def loss(X):
+    #MSE
+    l = (1.0/n)*np.sum((Y - predict(X))**2, axis=0) 
+    return l
 
 #derivative of loss
-def d_L(Y,ao):
-    print(Y.shape, ao.shape)
-    return (2.0/n)*np.sum(Y - ao)
+def dL(X,Y):
+    dl = np.sum(Y - predict(X), axis=0)    
+    return dl
+   
+def activation(code, z):
+    if code == 'sigmoid': 
+        f = 1/(1 + np.exp(-z))
+    elif code =='relu':
+        if z >= 0: f = z
+        else: f = 0
+        #zero = np.zeros(len(z))
+        #f = np.max([z,zero], axis=0)   
+    elif code == 'softmax':
+        f = np.exp(z)/np.sum(np.exp(z),axis=0)
+    return f
+
+def dA(a):
+    #sigmoid
+    da = a * (1-a)
     
-def SGD(X,y,lmbd, eta):
+    #relu
+    #da = 1 
+    
+    #Softmax
+    #da =  a * (1-a)
+    return da
+
+    
+   
+
+def feed_forward(X):
+        
+    # weighted sum of inputs to the hidden layer
+    zh = X @ Wh + Bh
+    # activation in the hidden layer
+    ah = activation('sigmoid',zh)
+
+    # weighted sum of inputs to the output layer
+    zo = ah @ Wo + Bo
+    ao = activation('softmax',zo)
+    
+    # for backpropagation need activations in hidden and output layers
+    return ah, ao
+
+
+def backpropagation(X, Y):
+    ah, ao = feed_forward(X)  
+
+    # error in the output layer
+    #eo = dL(X,Y) # Derivative of dL/dao
+    eo = ao - Y
+    
+    # error in the hidden layer
+    eh = eo @ Wo.T * dA(ah)
+    
+    # gradients for the output layer
+    #dWo = dL() @ da() @ ah
+    #dWo = ah.T @ np.reshape(eo,(10,1))
+    dWo = ah.T @ eo
+    dBo = np.sum(eo, axis=0)
+   
+    # gradient for the hidden layer
+    dWh = X.T @ eh
+    dBh = np.sum(eh, axis=0)
+    
+
+    return dWo, dBo, dWh, dBh
+
+
+# we obtain a prediction by taking the class with the highest likelihood
+def predict(X):
+    ah, ao = feed_forward(X)
+    return ao, np.argmax(ao, axis=1)
+
+
+def SGD(X,y,lmbd):
     for i in range(nbatch):
         random_index = M*np.random.randint(nbatch)
         xi = X[random_index:random_index+M]
@@ -23,97 +97,35 @@ def SGD(X,y,lmbd, eta):
         # regularization term gradients
         dWo += lmbd * Wo
         dWh += lmbd * Wh
-
         
-    return Wo, Bo, Wh, Bh
-
-def d_activ():
-    return 1    
-
-def activation(x):
-    #sigmoid
-    #f = 1/(1 + np.exp(-x))
-    
-    #Linear
-    f = x
-    
-    #2. order
-    #f= x**2
-
-    return f
-
-
-def feed_forward(X):
-        
-    # weighted sum of inputs to the hidden layer
-    zh = X @ Wh + Bh
-    # activation in the hidden layer
-    ah = activation(zh)
-
-    # weighted sum of inputs to the output layer
-    zo = ah @ Wo + Bo
-    ao = activation(zo)
-    print(ao.shape)
-    
-    # for backpropagation need activations in hidden and output layers
-    return ah, ao
-
-def backpropagation(X, Y):
-    ah, ao = feed_forward(X)  
-
-    # error in the output layer
-    eo = d_L(Y,ao)
-    print("Her",eo.shape)
-    # error in the hidden layer
-    eh = eo @ Wo.T #d_a
-    
-    
-    # gradients for the output layer
-   #dWo = d_L() @ d_acitv() @ ah
-    dWo = ah.T @ eo
-    dBo = np.sum(eo, axis=0)
-    
-    # gradient for the hidden layer
-    dWh = X.T @ eh
-    dBh = np.sum(eh, axis=0)
-    
-
     return dWo, dBo, dWh, dBh
 
-# we obtain a prediction by taking the class with the highest likelihood
-def predict(X):
-    ah, ao = feed_forward(X)
-    return np.argmax(ao, axis=1)
-
-
-# ensure the same random numbers appear every time
+####################################################
+#Setting up variables
 np.random.seed(0)
-n = 5
-deg = 2
-eta_vals = np.logspace(-5, 1, 7)
-lmbd_vals = np.logspace(-5, 1, 7)
-epochs= 100
-lim = 0.001
-itter_limit = 10000
-
-M = 2   #size of each minibatch
+n = 5       # nuber of datapoint
+epochs= 100 # Number of epochs, itterations throug NN
+lim = 0.001 # Fradient limit for gradient decent
+itter_limit = 10000 # Itterations limit it gradient does not converge
+eta_vals = np.logspace(-5, 1, 7) #Learn rate values
+lmbd_vals = np.logspace(-5, 1, 7) #Penalty values
+M = 10   #size of each minibatch in SGD
+ 
 
 # data:
-x = 2*np.random.rand(n,1) 
-Y = 3*x + 4 #+ noise
+noise = 1.5*np.random.rand(n,1)
+X = 2*np.random.rand(n,1) 
+Y = 3*X**2 + 4 + noise
+#plt.plot(X,Y,'*')
 
-# Design matrix
-poly = PolynomialFeatures(deg)
-X = poly.fit_transform(x)
-
-nbatch = int(len(X)/M) #number of minibatches
+#number of minibatches for SGD
+nbatch = int(len(X)/M) 
 
 
 # Defining the neural network
-n_inputs, n_features = X.shape # # (10,3) 10 sett med (x0,x1,x2)
-n_hidden_neurons = 5 # 
-n_categories = 3 # 3 output (beta0,beta1,beta2)
-n_features = 3 # x0, x1 og x2
+n_inputs, n_features = X.shape # rows and columns of input
+n_hidden_neurons = len(X) # Chose what gives best results
+n_categories = len(X) # outputs
 
 
 # we make the weights normally distributed using numpy.random.randn
@@ -126,17 +138,29 @@ Wo = np.random.randn(n_hidden_neurons, n_categories)
 dWo = np.random.randn(n_hidden_neurons, n_categories)
 Bo = np.zeros(n_categories) + 0.01
 
+#print(Y)
+print(predict(X))
+dWo_t, dBo_t, dWh_t, dBh_t  = backpropagation(X, Y)
+
 test_accuracy = np.zeros((len(eta_vals), len(lmbd_vals)))
 
-#loop over etas and lambdas
+#loop over learnrates and penalties
 for i, eta in enumerate(eta_vals):
    for j, lmbd in enumerate(lmbd_vals):
-        # loop over epochs
+        # loop over epochs, through NN
         epoch = 0
-        while np.linalg.norm(dWo) > lim :
+        while np.linalg.norm(dWo_t) > lim :
             epoch +=1
             # calculate gradient
-            dWo, dBo, dWh, dBh = SGD(X,Y,lmbd,eta)
+            #not using SGD
+            dWo, dBo, dWh, dBh = backpropagation(X, Y)
+            # regularization term gradients
+            dWo += lmbd * Wo
+            dWh += lmbd * Wh
+            
+            #Using SGD
+            #dWo, dBo, dWh, dBh = SGD(X,Y,lmbd)
+            
             if epoch > itter_limit:
                 print("break SGD")
                 break
@@ -147,7 +171,7 @@ for i, eta in enumerate(eta_vals):
             Bh -= eta * dBh
             
             #calculate gradient for whole dataset to use as a stop criteria 
-            dWo, dBo_t, dWh_t, dBh_t  = backpropagation(X, Y)
+            dWo_t, dBo_t, dWh_t, dBh_t  = backpropagation(X, Y)
 
         if np.any(np.isnan(dWo)):
             print(eta, lmbd)
