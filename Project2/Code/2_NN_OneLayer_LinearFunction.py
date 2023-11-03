@@ -6,24 +6,22 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 #Loss fuction
-def loss(X):
+def loss(ao):
     #MSE
-    l = (1.0/n)*np.sum((Y - predict(X))**2, axis=0) 
+    l = (1.0/n)*np.sum((Y - ao)**2, axis=0) 
     return l
 
 #derivative of loss
-def dL(X,Y):
-    dl = np.sum(Y - predict(X), axis=0)    
+def dL(ao,Y):
+    dl = np.sum(Y - ao, axis=0)    
     return dl
    
 def activation(code, z):
     if code == 'sigmoid': 
         f = 1/(1 + np.exp(-z))
     elif code =='relu':
-        if z >= 0: f = z
-        else: f = 0
-        #zero = np.zeros(len(z))
-        #f = np.max([z,zero], axis=0)   
+        zero = np.zeros(z.shape)
+        f = np.max([z,zero], axis=0)   
     elif code == 'softmax':
         f = np.exp(z)/np.sum(np.exp(z),axis=0)
     return f
@@ -47,12 +45,12 @@ def feed_forward(X):
     # weighted sum of inputs to the hidden layer
     zh = X @ Wh + Bh
     # activation in the hidden layer
-    ah = activation('sigmoid',zh)
+    ah = activation('relu',zh)
 
     # weighted sum of inputs to the output layer
     zo = ah @ Wo + Bo
-    ao = activation('softmax',zo)
-    
+    ao = activation('relu',zo)
+
     # for backpropagation need activations in hidden and output layers
     return ah, ao
 
@@ -61,11 +59,11 @@ def backpropagation(X, Y):
     ah, ao = feed_forward(X)  
 
     # error in the output layer
-    #eo = dL(X,Y) # Derivative of dL/dao
+    #eo = dL(ao,Y) # Derivative of dL/dao
     eo = ao - Y
     
     # error in the hidden layer
-    eh = eo @ Wo.T * dA(ah)
+    eh = eo @ Wo.T #* ah * (1-ah) #dA(ah)
     
     # gradients for the output layer
     #dWo = dL() @ da() @ ah
@@ -96,10 +94,8 @@ def SGD(X,y,lmbd):
 
 def predict(X):
     ah, ao = feed_forward(X)
-    return ao#np.argmax(ao, axis=1)
+    return ao
 
-def accuracy_score_numpy(Y_test, Y_pred):
-    return np.sum(Y_test == Y_pred) / len(Y_test)
 
 
 
@@ -107,7 +103,7 @@ def accuracy_score_numpy(Y_test, Y_pred):
 ####################################################
 #Setting up variables
 np.random.seed(0)
-n = 5       # nuber of datapoint
+n = 10       # nuber of datapoint
 epochs= 100 # Number of epochs, itterations throug NN
 lim = 0.001 # Fradient limit for gradient decent
 itter_limit = 10000 # Itterations limit it gradient does not converge
@@ -128,8 +124,8 @@ nbatch = int(len(X)/M)
 
 # Defining the neural network
 n_inputs, n_features = X.shape # rows and columns of input
-n_hidden_neurons = 1#len(X) # Chose what gives best results
-n_categories = 1#len(X) # outputs
+n_hidden_neurons = 5 # Chose what gives best results
+n_categories = 1 # outputs
 
 
 # we make the weights normally distributed using numpy.random.randn
@@ -142,7 +138,7 @@ Wo = np.random.randn(n_hidden_neurons, n_categories)
 dWo = np.random.randn(n_hidden_neurons, n_categories)
 Bo = np.zeros(n_categories) + 0.01
 
-#print(Y)
+print(Y)
 #print(predict(X))
 dWo_t, dBo_t, dWh_t, dBh_t  = backpropagation(X, Y)
 
@@ -177,10 +173,11 @@ for i, eta in enumerate(eta_vals):
             #calculate gradient for whole dataset to use as a stop criteria 
             dWo_t, dBo_t, dWh_t, dBh_t  = backpropagation(X, Y)
 
-        if np.any(np.isnan(dWo)):
-            print(eta, lmbd)
+        #if np.any(np.isnan(Wo)):
+        print("Eta: ",eta,"   lambda: ", lmbd)
 
-        test_accuracy[i][j] = np.sum(Y - predict(X) / len(Y))   
+        MSE = np.sum((Y - predict(X))**2)/ len(Y)
+        test_accuracy[i][j] = MSE
         print(predict(X))
 
 
