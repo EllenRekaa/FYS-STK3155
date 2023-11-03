@@ -81,12 +81,6 @@ def backpropagation(X, Y):
     return dWo, dBo, dWh, dBh
 
 
-# we obtain a prediction by taking the class with the highest likelihood
-def predict(X):
-    ah, ao = feed_forward(X)
-    return ao, np.argmax(ao, axis=1)
-
-
 def SGD(X,y,lmbd):
     for i in range(nbatch):
         random_index = M*np.random.randint(nbatch)
@@ -99,6 +93,16 @@ def SGD(X,y,lmbd):
         dWh += lmbd * Wh
         
     return dWo, dBo, dWh, dBh
+
+def predict(X):
+    ah, ao = feed_forward(X)
+    return ao#np.argmax(ao, axis=1)
+
+def accuracy_score_numpy(Y_test, Y_pred):
+    return np.sum(Y_test == Y_pred) / len(Y_test)
+
+
+
 
 ####################################################
 #Setting up variables
@@ -124,8 +128,8 @@ nbatch = int(len(X)/M)
 
 # Defining the neural network
 n_inputs, n_features = X.shape # rows and columns of input
-n_hidden_neurons = len(X) # Chose what gives best results
-n_categories = len(X) # outputs
+n_hidden_neurons = 1#len(X) # Chose what gives best results
+n_categories = 1#len(X) # outputs
 
 
 # we make the weights normally distributed using numpy.random.randn
@@ -139,7 +143,7 @@ dWo = np.random.randn(n_hidden_neurons, n_categories)
 Bo = np.zeros(n_categories) + 0.01
 
 #print(Y)
-print(predict(X))
+#print(predict(X))
 dWo_t, dBo_t, dWh_t, dBh_t  = backpropagation(X, Y)
 
 test_accuracy = np.zeros((len(eta_vals), len(lmbd_vals)))
@@ -176,7 +180,7 @@ for i, eta in enumerate(eta_vals):
         if np.any(np.isnan(dWo)):
             print(eta, lmbd)
 
-        test_accuracy[i][j] = accuracy_score(predict(X),Y)    
+        test_accuracy[i][j] = np.sum(Y - predict(X) / len(Y))   
         print(predict(X))
 
 
