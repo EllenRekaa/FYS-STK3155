@@ -19,6 +19,7 @@ def loss(ao,Y):
 
 
 #derivative of loss
+def dL(ao,Y):
     if c == 1: 
         #derivative of Cross Entrypy
         dl = ao-Y
