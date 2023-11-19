@@ -1,8 +1,0 @@
-PROJECT LOG
-
-27/10:
-SGD code is working - still getting poor results with RMSprop and AdaGrad, sometimes GDM. There are a multitude
-parameters controlling these methods, so there are many possible changes that will lead to better results. Currently
-working on the functions y1 = np.exp(-x**2) + rnd.normal(0, 0.1, x.shape) + 1.5 * np.exp(-(x-2)**2) 
-and y2 = 0.5 + 2 * x ** 2. As I have understood, AdaGrad is an especially aggressive learning rate tuner which
-potentially may stop learning too fast (fast convergence). 
