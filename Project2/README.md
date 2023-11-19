@@ -18,6 +18,8 @@ NeuralNetwork.py
 
     Object Oriented Code for creating a neural network with a flexible number of layers and nodes in each layer.
 
+    Data file 'data.csv' must be directly available in the same destination as the destination path of the code NeuralNetwork.py
+
 gates_example.py
 
     Training example using XOR and AND gate.
