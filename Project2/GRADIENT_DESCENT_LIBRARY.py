@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from jax import grad, jit
 
+# GRADIENT_DESCENT() TAKES A TARGET COST FUNCTION WHICH IS DIFFERENTIATED BY THE grad FUNCTION IN THE jax LIBRARY
+# OPTIMIZER AS A STRING, BEING THE NAME OF THE OPTIMIZER TYPE (GDM, RMSprop, etc), INITIAL GUESS guess, LEARNING RATE lr
+# AND MAX NO. OF ITERATIONS niter. 
 
 def GRADIENT_DESCENT(TARGET_FUNC, OPTIMIZER, guess, lr, niter):
 
